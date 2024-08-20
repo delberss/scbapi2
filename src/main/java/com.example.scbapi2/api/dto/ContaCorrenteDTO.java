@@ -9,7 +9,7 @@ import org.modelmapper.ModelMapper;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContaCorrenteDTO {
+public class ContaCorrenteDTO extends ContaDTO{
     private Long id;
     private String numero;
     private Double saldo;

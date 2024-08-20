@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContaPoupanca extends Conta {
-
     private Double taxaJuros;
 
     @Override

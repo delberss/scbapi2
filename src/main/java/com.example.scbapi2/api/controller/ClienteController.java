@@ -62,19 +62,20 @@ public class ClienteController {
         }
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity excluir(@PathVariable("id") Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> excluir(@PathVariable("id") Long id) {
         Optional<Cliente> cliente = service.getClienteById(id);
         if (!cliente.isPresent()) {
-            return new ResponseEntity("Cliente não encontrado", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Cliente não encontrado", HttpStatus.NOT_FOUND);
         }
         try {
             service.excluir(cliente.get());
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok("Cliente excluído com sucesso");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     private Cliente converter(ClienteDTO dto) {
         return modelMapper.map(dto, Cliente.class);

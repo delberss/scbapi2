@@ -44,4 +44,8 @@ public class ContaService {
             throw new RegraNegocioException("Saldo não pode ser nulo");
         }
     }
+
+    public List<Conta> getContasByClienteId(Long clienteId) {
+        return repository.findByClienteId(clienteId);
+    }
 }

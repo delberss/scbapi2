@@ -1,7 +1,11 @@
 package com.example.scbapi2.api.controller;
 
+import com.example.scbapi2.api.dto.ContaCorrenteDTO;
+import com.example.scbapi2.api.dto.ContaDTO;
 import com.example.scbapi2.api.dto.ContaPoupancaDTO;
 import com.example.scbapi2.model.entity.Cliente;
+import com.example.scbapi2.model.entity.Conta;
+import com.example.scbapi2.model.entity.ContaCorrente;
 import com.example.scbapi2.model.entity.ContaPoupanca;
 import com.example.scbapi2.service.ContaPoupancaService;
 import com.example.scbapi2.service.ClienteService; // Adicione a importação
@@ -36,7 +40,7 @@ public class ContaPoupancaController {
         if (!contaPoupanca.isPresent()) {
             return new ResponseEntity("Conta Poupança não encontrada", HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.ok(contaPoupanca.map(ContaPoupancaDTO::create));
+        return ResponseEntity.ok(contaPoupanca.map(ContaCorrenteDTO::create));
     }
 
     @PostMapping()
@@ -72,19 +76,20 @@ public class ContaPoupancaController {
         }
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity excluir(@PathVariable("id") Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> excluir(@PathVariable("id") Long id) {
         Optional<ContaPoupanca> contaPoupanca = service.getContaPoupancaById(id);
         if (!contaPoupanca.isPresent()) {
-            return new ResponseEntity("Conta Poupança não encontrada", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Conta Poupança não encontrada", HttpStatus.NOT_FOUND);
         }
         try {
             service.excluir(contaPoupanca.get());
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok("Conta Poupança excluída com sucesso");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PostMapping("/{id}/depositar")
     public ResponseEntity<?> depositar(@PathVariable("id") Long id, @RequestParam Double valor) {
@@ -121,6 +126,12 @@ public class ContaPoupancaController {
         }
     }
 
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<ContaPoupancaDTO>> getContasPorCliente(@PathVariable("clienteId") Long clienteId) {
+        List<ContaPoupanca> contas = service.getContasPorCliente(clienteId);
+        return ResponseEntity.ok(contas.stream().map(ContaPoupancaDTO::create).collect(Collectors.toList()));
+    }
 
 
     private ContaPoupanca converter(ContaPoupancaDTO dto) {

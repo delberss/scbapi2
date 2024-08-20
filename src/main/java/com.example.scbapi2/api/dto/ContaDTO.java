@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 public class ContaDTO {
 
     private Long id;
+    private String numero;
     private Double saldo;
     private Long clienteId;
 

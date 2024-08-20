@@ -66,19 +66,20 @@ public class ContaCorrenteController {
         }
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity excluir(@PathVariable("id") Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> excluir(@PathVariable("id") Long id) {
         Optional<ContaCorrente> contaCorrente = service.getContaCorrenteById(id);
         if (!contaCorrente.isPresent()) {
-            return new ResponseEntity("Conta Corrente não encontrada", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Conta Corrente não encontrada", HttpStatus.NOT_FOUND);
         }
         try {
             service.excluir(contaCorrente.get());
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok("Conta Corrente excluída com sucesso");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PostMapping("/{id}/sacar")
     public ResponseEntity sacar(@PathVariable("id") Long id, @RequestParam Double valor) {
@@ -108,6 +109,12 @@ public class ContaCorrenteController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<ContaCorrenteDTO>> getContasPorCliente(@PathVariable("clienteId") Long clienteId) {
+        List<ContaCorrente> contas = service.getContasPorCliente(clienteId);
+        return ResponseEntity.ok(contas.stream().map(ContaCorrenteDTO::create).collect(Collectors.toList()));
     }
 
     private ContaCorrente converter(ContaCorrenteDTO dto) {

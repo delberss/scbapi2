@@ -47,4 +47,13 @@ public class ContaCorrenteService {
             throw new RegraNegocioException("Limite de cheque especial não pode ser nulo");
         }
     }
+
+    public List<ContaCorrente> getContasCorrentesByClienteId(Long clienteId) {
+        return repository.findByClienteId(clienteId);
+    }
+
+    public List<ContaCorrente> getContasPorCliente(Long clienteId) {
+        return repository.findByClienteId(clienteId);
+    }
+
 }

@@ -2,7 +2,9 @@ package com.example.scbapi2.service;
 
 import com.example.scbapi2.exception.RegraNegocioException;
 import com.example.scbapi2.model.entity.Cliente;
+import com.example.scbapi2.model.entity.ContaCorrente;
 import com.example.scbapi2.model.entity.ContaPoupanca;
+import com.example.scbapi2.model.repository.ContaCorrenteRepository;
 import com.example.scbapi2.model.repository.ContaPoupancaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +17,9 @@ import java.util.Optional;
 public class ContaPoupancaService {
 
     private final ContaPoupancaRepository repository;
-    private final ClienteService clienteService; // Adicione o ClienteService
 
-    public ContaPoupancaService(ContaPoupancaRepository repository, ClienteService clienteService) {
+    public ContaPoupancaService(ContaPoupancaRepository repository) {
         this.repository = repository;
-        this.clienteService = clienteService; // Inicialize o ClienteService
     }
 
     public List<ContaPoupanca> getContasPoupancas() {
@@ -33,12 +33,6 @@ public class ContaPoupancaService {
     @Transactional
     public ContaPoupanca salvar(ContaPoupanca contaPoupanca) {
         validar(contaPoupanca);
-        // Associa o cliente antes de salvar
-        if (contaPoupanca.getCliente() != null && contaPoupanca.getCliente().getId() != null) {
-            Cliente cliente = clienteService.getClienteById(contaPoupanca.getCliente().getId())
-                    .orElseThrow(() -> new RegraNegocioException("Cliente não encontrado"));
-            contaPoupanca.setCliente(cliente);
-        }
         return repository.save(contaPoupanca);
     }
 
@@ -55,5 +49,13 @@ public class ContaPoupancaService {
         if (contaPoupanca.getTaxaJuros() == null) {
             throw new RegraNegocioException("Taxa de juros não pode ser nula");
         }
+    }
+
+    public List<ContaPoupanca> getContasPoupancasByClienteId(Long clienteId) {
+        return repository.findByClienteId(clienteId);
+    }
+
+    public List<ContaPoupanca> getContasPorCliente(Long clienteId) {
+        return repository.findByClienteId(clienteId);
     }
 }

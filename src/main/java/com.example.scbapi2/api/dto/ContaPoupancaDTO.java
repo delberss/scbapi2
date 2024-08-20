@@ -10,14 +10,18 @@ import org.modelmapper.ModelMapper;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContaPoupancaDTO extends ContaDTO {
-
+    private Long id;
+    private String numero;
+    private Double saldo;
     private Double taxaJuros;
-    private Long clienteId;  // Adiciona o campo clienteId
+    private Long clienteId;  // Deve ser um Long, não um objeto Cliente
 
     public static ContaPoupancaDTO create(ContaPoupanca contaPoupanca) {
         ModelMapper modelMapper = new ModelMapper();
         ContaPoupancaDTO dto = modelMapper.map(contaPoupanca, ContaPoupancaDTO.class);
-        dto.setClienteId(contaPoupanca.getCliente().getId());
+        if (contaPoupanca.getCliente() != null) {
+            dto.setClienteId(contaPoupanca.getCliente().getId());
+        }
         return dto;
     }
 }
