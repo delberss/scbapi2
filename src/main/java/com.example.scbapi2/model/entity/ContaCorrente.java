@@ -1,6 +1,6 @@
 package com.example.scbapi2.model.entity;
 
-import jakarta.persistence.Entity;
+import javax.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
