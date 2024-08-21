@@ -1,14 +1,12 @@
 package com.example.scbapi2.api.controller;
 
 import com.example.scbapi2.api.dto.ContaCorrenteDTO;
-import com.example.scbapi2.api.dto.ContaDTO;
 import com.example.scbapi2.api.dto.ContaPoupancaDTO;
 import com.example.scbapi2.model.entity.Cliente;
-import com.example.scbapi2.model.entity.Conta;
-import com.example.scbapi2.model.entity.ContaCorrente;
 import com.example.scbapi2.model.entity.ContaPoupanca;
 import com.example.scbapi2.service.ContaPoupancaService;
-import com.example.scbapi2.service.ClienteService; // Adicione a importação
+import com.example.scbapi2.service.ClienteService;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -22,6 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/contaspoupancas")
 @RequiredArgsConstructor
+@Api("API de Contas Poupanças")
 public class ContaPoupancaController {
 
     private final ContaPoupancaService service;
@@ -29,12 +28,23 @@ public class ContaPoupancaController {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @GetMapping()
+    @ApiOperation("Obter a lista de contas poupança")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Contas poupança encontradas"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity get() {
         List<ContaPoupanca> contasPoupancas = service.getContasPoupancas();
         return ResponseEntity.ok(contasPoupancas.stream().map(ContaPoupancaDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
+    @ApiOperation("Obter detalhes de uma conta poupança pelo ID")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Conta poupança encontrada"),
+            @ApiResponse(code = 404, message = "Conta poupança não encontrada"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity get(@PathVariable("id") Long id) {
         Optional<ContaPoupanca> contaPoupanca = service.getContaPoupancaById(id);
         if (!contaPoupanca.isPresent()) {
@@ -44,6 +54,12 @@ public class ContaPoupancaController {
     }
 
     @PostMapping()
+    @ApiOperation("Cadastrar uma nova conta poupança")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Conta poupança criada com sucesso"),
+            @ApiResponse(code = 400, message = "Erro ao cadastrar conta poupança"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity post(@RequestBody ContaPoupancaDTO dto) {
         try {
             ContaPoupanca contaPoupanca = converter(dto);
@@ -62,6 +78,13 @@ public class ContaPoupancaController {
     }
 
     @PutMapping("{id}")
+    @ApiOperation("Atualizar uma conta poupança existente")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Conta poupança atualizada com sucesso"),
+            @ApiResponse(code = 404, message = "Conta poupança não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao atualizar conta poupança"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity atualizar(@PathVariable("id") Long id, @RequestBody ContaPoupancaDTO dto) {
         if (!service.getContaPoupancaById(id).isPresent()) {
             return new ResponseEntity("Conta Poupança não encontrada", HttpStatus.NOT_FOUND);
@@ -77,6 +100,13 @@ public class ContaPoupancaController {
     }
 
     @DeleteMapping("/{id}")
+    @ApiOperation("Excluir uma conta poupança pelo ID")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Conta poupança excluída com sucesso"),
+            @ApiResponse(code = 404, message = "Conta poupança não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao excluir conta poupança"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity<String> excluir(@PathVariable("id") Long id) {
         Optional<ContaPoupanca> contaPoupanca = service.getContaPoupancaById(id);
         if (!contaPoupanca.isPresent()) {
@@ -92,6 +122,13 @@ public class ContaPoupancaController {
 
 
     @PostMapping("/{id}/depositar")
+    @ApiOperation("Realizar um depósito em uma conta poupança")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Depósito realizado com sucesso"),
+            @ApiResponse(code = 404, message = "Conta poupança não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao realizar depósito"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity<?> depositar(@PathVariable("id") Long id, @RequestParam Double valor) {
         Optional<ContaPoupanca> contaPoupancaOpt = service.getContaPoupancaById(id);
         if (!contaPoupancaOpt.isPresent()) {
@@ -108,6 +145,13 @@ public class ContaPoupancaController {
     }
 
     @PostMapping("/{id}/sacar")
+    @ApiOperation("Realizar um saque em uma conta poupança")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Saque realizado com sucesso"),
+            @ApiResponse(code = 404, message = "Conta poupança não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao realizar saque"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity<?> sacar(@PathVariable("id") Long id, @RequestParam Double valor) {
         Optional<ContaPoupanca> contaPoupancaOpt = service.getContaPoupancaById(id);
         if (!contaPoupancaOpt.isPresent()) {
@@ -128,6 +172,12 @@ public class ContaPoupancaController {
 
 
     @GetMapping("/cliente/{clienteId}")
+    @ApiOperation("Obter contas poupança por ID do cliente")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Contas poupança encontradas"),
+            @ApiResponse(code = 404, message = "Cliente não encontrado"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity<List<ContaPoupancaDTO>> getContasPorCliente(@PathVariable("clienteId") Long clienteId) {
         List<ContaPoupanca> contas = service.getContasPorCliente(clienteId);
         return ResponseEntity.ok(contas.stream().map(ContaPoupancaDTO::create).collect(Collectors.toList()));

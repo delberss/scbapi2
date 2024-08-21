@@ -9,6 +9,7 @@ import com.example.scbapi2.model.entity.ContaPoupanca;
 import com.example.scbapi2.service.ContaCorrenteService;
 import com.example.scbapi2.service.ContaPoupancaService;
 import com.example.scbapi2.service.ContaService;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/contas")
 @RequiredArgsConstructor
+@Api("API de Contas")
 public class ContaController {
 
     @Autowired
@@ -35,12 +37,23 @@ public class ContaController {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @GetMapping()
+    @ApiOperation("Obter a lista de contas")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Contas encontradas"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity get() {
         List<Conta> contas = service.getContas();
         return ResponseEntity.ok(contas.stream().map(ContaDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
+    @ApiOperation("Obter detalhes de uma conta pelo ID")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Conta encontrada"),
+            @ApiResponse(code = 404, message = "Conta não encontrada"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity get(@PathVariable("id") Long id) {
         Optional<Conta> conta = service.getContaById(id);
         if (!conta.isPresent()) {
@@ -50,6 +63,12 @@ public class ContaController {
     }
 
     @PostMapping()
+    @ApiOperation("Cadastrar uma nova conta")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Conta criada com sucesso"),
+            @ApiResponse(code = 400, message = "Erro ao cadastrar conta"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity post(@RequestBody ContaDTO dto) {
         try {
             Conta conta = converter(dto);
@@ -61,6 +80,13 @@ public class ContaController {
     }
 
     @PutMapping("{id}")
+    @ApiOperation("Atualizar uma conta existente")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Conta atualizada com sucesso"),
+            @ApiResponse(code = 404, message = "Conta não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao atualizar conta"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity atualizar(@PathVariable("id") Long id, @RequestBody ContaDTO dto) {
         if (!service.getContaById(id).isPresent()) {
             return new ResponseEntity("Conta não encontrada", HttpStatus.NOT_FOUND);
@@ -76,6 +102,13 @@ public class ContaController {
     }
 
     @DeleteMapping("/{id}")
+    @ApiOperation("Excluir uma conta pelo ID")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Conta excluída com sucesso"),
+            @ApiResponse(code = 404, message = "Conta não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao excluir conta"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity<String> excluir(@PathVariable("id") Long id) {
         Optional<Conta> conta = service.getContaById(id);
         if (!conta.isPresent()) {
@@ -90,6 +123,13 @@ public class ContaController {
     }
 
     @PostMapping("/{id}/sacar")
+    @ApiOperation("Realizar um saque em uma conta")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Saque realizado com sucesso"),
+            @ApiResponse(code = 404, message = "Conta não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao realizar saque"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity sacar(@PathVariable("id") Long id, @RequestParam Double valor) {
         Optional<Conta> conta = service.getContaById(id);
         if (!conta.isPresent()) {
@@ -105,6 +145,13 @@ public class ContaController {
     }
 
     @PostMapping("/{id}/depositar")
+    @ApiOperation("Realizar um depósito em uma conta")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Depósito realizado com sucesso"),
+            @ApiResponse(code = 404, message = "Conta não encontrada"),
+            @ApiResponse(code = 400, message = "Erro ao realizar depósito"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity depositar(@PathVariable("id") Long id, @RequestParam Double valor) {
         Optional<Conta> conta = service.getContaById(id);
         if (!conta.isPresent()) {
@@ -120,6 +167,12 @@ public class ContaController {
     }
 
     @GetMapping("/cliente/{clienteId}")
+    @ApiOperation("Obter contas por ID do cliente")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Contas encontradas"),
+            @ApiResponse(code = 404, message = "Cliente não encontrado"),
+            @ApiResponse(code = 500, message = "Erro interno do servidor")
+    })
     public ResponseEntity<List<ContaDTO>> getContasByClienteId(@PathVariable("clienteId") Long clienteId) {
         List<ContaCorrente> contasCorrentes = contaCorrenteService.getContasCorrentesByClienteId(clienteId);
         List<ContaPoupanca> contasPoupancas = contaPoupancaService.getContasPoupancasByClienteId(clienteId);
