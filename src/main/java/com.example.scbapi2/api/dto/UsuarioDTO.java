@@ -13,12 +13,14 @@ public class UsuarioDTO {
 
     private Long id;
     private String login;
-    private String cpf;
     private String senha;
+    private String senhaRepeticao;
+    private String cpf;
     private boolean admin;
 
     public static UsuarioDTO create(Usuario usuario) {
         ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(usuario, UsuarioDTO.class);
+        UsuarioDTO dto = modelMapper.map(usuario, UsuarioDTO.class);
+        return dto;
     }
 }
