@@ -102,6 +102,11 @@ public class UsuarioController {
             }
             Usuario usuario = converter(dto);
             usuario.setId(id);
+
+            // Criptografar a nova senha
+            String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
+            usuario.setSenha(senhaCriptografada);
+
             service.salvar(usuario);
             return ResponseEntity.ok(usuario);
         } catch (RegraNegocioException e) {
