@@ -1,16 +1,17 @@
 package com.example.scbapi2.model.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "usuario")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Entity
 public class Usuario {
 
     @Id

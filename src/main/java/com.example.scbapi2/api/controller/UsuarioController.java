@@ -1,16 +1,26 @@
 package com.example.scbapi2.api.controller;
 
+import com.example.scbapi2.api.dto.CredenciaisDTO;
+import com.example.scbapi2.api.dto.TokenDTO;
 import com.example.scbapi2.api.dto.UsuarioDTO;
 import com.example.scbapi2.exception.RegraNegocioException;
+import com.example.scbapi2.exception.SenhaInvalidaException;
 import com.example.scbapi2.model.entity.Usuario;
+import com.example.scbapi2.security.JwtService;
 import com.example.scbapi2.service.UsuarioService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +35,8 @@ public class UsuarioController {
     private final UsuarioService service;
     private final ModelMapper modelMapper = new ModelMapper();
     private final PasswordEncoder passwordEncoder;
+    private final UsuarioService usuarioService;
+    private final JwtService jwtService;
 
 
     @GetMapping()
@@ -77,6 +89,21 @@ public class UsuarioController {
             return new ResponseEntity(usuario, HttpStatus.CREATED);
         } catch (RegraNegocioException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/auth")
+    public TokenDTO autenticar(@RequestBody CredenciaisDTO credenciais){
+        try{
+            Usuario usuario = Usuario.builder()
+                    .login(credenciais.getLogin())
+                    .senha(credenciais.getSenha()).build();
+            UserDetails usuarioAutenticado = usuarioService.autenticar(usuario);
+            String token = jwtService.gerarToken(usuario);
+            return new TokenDTO(usuario.getLogin(), token);
+        } catch (UsernameNotFoundException | SenhaInvalidaException e ){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
 
@@ -134,6 +161,7 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     private Usuario converter(UsuarioDTO dto) {
         return modelMapper.map(dto, Usuario.class);
